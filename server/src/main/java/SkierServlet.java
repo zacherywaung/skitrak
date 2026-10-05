@@ -67,7 +67,16 @@ public class SkierServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        // Expected URL: /skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}
+        // REST Endpoint: POST /skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}
+//        {
+//            "time": 217,
+//            "liftID": 21
+//        }
+//        Validation (return 400 on failure):
+//        resortID, seasonID, dayID, skierID in the URL path must be positive integers
+//        time must be between 1 and 360 (minutes into the ski day)
+//        liftID must be between 1 and 40
+//        On a valid swipe: return 201 Created. That's it — no aggregation, no per-skier state, no leaderboard update. The server simply accepts the swipe as fast as it can. (Real aggregation arrives in Assignment 2.)
 
         logger.info("POST request received: " + req.getPathInfo());
 
@@ -79,7 +88,7 @@ public class SkierServlet extends HttpServlet {
         // Check we have a URL
         if (urlPath == null || urlPath.isEmpty()) {
             logger.warning("POST missing parameters");
-            res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             res.getWriter().write(gson.toJson(new ResponseMsg("missing parameters")));
             return;
         }
@@ -120,12 +129,12 @@ public class SkierServlet extends HttpServlet {
             // Process the lift ride (in real app, save to database)
             logger.info("Lift ride recorded success");
             res.setStatus(HttpServletResponse.SC_CREATED);
-            ResponseMsg response = new ResponseMsg(
-                    String.format("Lift ride recorded: skier %s, resort %s, season %s, day %s, time %d, lift %d",
-                            skierID, resortID, seasonID, dayID, liftRide.getTime(), liftRide.getLiftID())
-            );
-
-            res.getWriter().write(gson.toJson(response));
+//            ResponseMsg response = new ResponseMsg(
+//                    String.format("Lift ride recorded: skier %s, resort %s, season %s, day %s, time %d, lift %d",
+//                            skierID, resortID, seasonID, dayID, liftRide.getTime(), liftRide.getLiftID())
+//            );
+//
+//            res.getWriter().write(gson.toJson(response));
 
         } catch (JsonSyntaxException e) {
             logger.warning("JSON syntax error: " + e.getMessage());
@@ -150,13 +159,11 @@ public class SkierServlet extends HttpServlet {
                 return false;
             }
 
-            // Validate numeric parameters
-            Integer.parseInt(urlParts[1]); // resortID
-            Integer.parseInt(urlParts[3]); // seasonID
-            Integer.parseInt(urlParts[5]); // dayID
-            Integer.parseInt(urlParts[7]); // skierID
-
-            return true;
+            // Validate numeric parameters && resortID seasonID dayID skierID > 0
+            return Integer.parseInt(urlParts[1]) > 0            // resortID
+            && Integer.parseInt(urlParts[3]) > 0                // seasonID
+            && Integer.parseInt(urlParts[5]) > 0                // dayID
+            && Integer.parseInt(urlParts[7]) > 0;               // skierID
 
         } catch (NumberFormatException e) {
             return false;
@@ -165,8 +172,9 @@ public class SkierServlet extends HttpServlet {
 
     private boolean isLiftRideValid(LiftRide liftRide) {
         // Basic validation
-        return liftRide.getTime() > 0 &&
-                liftRide.getTime() <= 360 && // Max 6 hours (360 minutes)
-                liftRide.getLiftID() > 0;
+        return liftRide.getTime() >= 1 &&
+                liftRide.getTime() <= 360 &&    // Max 6 hours (360 minutes)
+                liftRide.getLiftID() >= 1 &&
+                liftRide.getLiftID() <= 40;     // 1 <= liftID <= 40
     }
 }
