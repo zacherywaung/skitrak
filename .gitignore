@@ -1,0 +1,6 @@
+target/
+*.war
+.idea/
+*.iml
+out/
+.DS_Store
