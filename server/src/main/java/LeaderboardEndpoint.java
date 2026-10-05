@@ -59,7 +59,15 @@ public class LeaderboardEndpoint {
         for (Map.Entry<String, Set<Session>> e : subscribers.entrySet()) {
             String json = syntheticLeaderboard(e.getKey()); // canned/random top-N + serverTimestamp
             for (Session s : e.getValue()) {
-                if (s.isOpen()) s.getAsyncRemote().sendText(json);
+                if (!s.isOpen()) {
+                    e.getValue().remove(s);
+                    continue;
+                }
+                try {
+                    s.getAsyncRemote().sendText(json);
+                }catch (Exception ex) {
+                    logger.log(Level.WARNING, "push failed on " + s.getId(), ex);
+                }
             }
         }
     }
