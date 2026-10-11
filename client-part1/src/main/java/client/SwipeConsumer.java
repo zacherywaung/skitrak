@@ -19,6 +19,7 @@ public class SwipeConsumer implements Runnable{
     private final int total;
     private int success = 0;
     private int fail = 0;
+    private int errReconnect = 0;
 
     public SwipeConsumer(BlockingQueue<SwipeInfo> bq, CloseableHttpClient client, String baseUrl, int total) {
         this.bq = bq;
@@ -43,6 +44,7 @@ public class SwipeConsumer implements Runnable{
             }catch(IOException e) {
                 System.out.println("Send fail: " +  e.getMessage());
                 fail++;
+                errReconnect++;
             }catch(InterruptedException e){
                 System.out.println("Interrupted!!!");
                 return;
@@ -55,6 +57,9 @@ public class SwipeConsumer implements Runnable{
     }
     public int GetFail() {
         return fail;
+    }
+    public int GetErrReconnect() {
+        return errReconnect;
     }
 
     // POST {baseurl}/skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID} HTTP/1.1
