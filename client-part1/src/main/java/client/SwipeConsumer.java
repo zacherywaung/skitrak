@@ -21,6 +21,10 @@ public class SwipeConsumer implements Runnable{
     private int fail = 0;
     private int errReconnect = 0;
 
+    private static final int maxRetry = 5;
+    private static final int baseBackOff = 100;
+    private int retryTimes = 0;
+
     public SwipeConsumer(BlockingQueue<SwipeInfo> bq, CloseableHttpClient client, String baseUrl, int total) {
         this.bq = bq;
         this.client = client;
@@ -34,22 +38,36 @@ public class SwipeConsumer implements Runnable{
             try {
                 SwipeInfo swipe = bq.take();
                 HttpPost req = toRequest(swipe);
-//              HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-                int statusCode = client.execute(req, response -> response.getCode());
-                if(statusCode == 201) {
+                boolean res = SendWithRetry(req);
+                if(res) {
                     success++;
-                }else {
+                } else {
                     fail++;
                 }
-            }catch(IOException e) {
-                System.out.println("Send fail: " +  e.getMessage());
-                fail++;
-                errReconnect++;
             }catch(InterruptedException e){
                 System.out.println("Interrupted!!!");
                 return;
             }
         }
+    }
+    private boolean SendWithRetry(HttpPost req) throws InterruptedException{
+        int backoff = baseBackOff;
+        for(int attempts = 0; attempts < maxRetry; attempts++) {
+            if(attempts > 0) {
+                retryTimes++;
+                Thread.sleep(backoff);
+                backoff *= 2;
+            }
+            try {
+                int statusCode = client.execute(req, response -> response.getCode());
+                if(statusCode == 201) {
+                    return true;
+                }
+            } catch (IOException ex) {
+                errReconnect++;
+            }
+        }
+        return false;
     }
 
     public int GetSuccess() {
@@ -60,6 +78,10 @@ public class SwipeConsumer implements Runnable{
     }
     public int GetErrReconnect() {
         return errReconnect;
+    }
+
+    public int GetRetryTimes() {
+        return retryTimes;
     }
 
     // POST {baseurl}/skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID} HTTP/1.1

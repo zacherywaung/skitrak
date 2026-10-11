@@ -103,16 +103,19 @@ public class Client {
         // statistic
         int warmupSuccess = 0, warmupFail = 0;
         int errReconnection = 0;
+        int retryTimes = 0;
         for(SwipeConsumer c : consumers) {
             warmupSuccess += c.GetSuccess();
             warmupFail += c.GetFail();
             errReconnection += c.GetErrReconnect();
+            retryTimes += c.GetRetryTimes();
         }
         int success = warmupSuccess, fail = warmupFail;
         for(SwipeConsumer c : tasks) {
             success += c.GetSuccess();
             fail += c.GetFail();
             errReconnection += c.GetErrReconnect();
+            retryTimes += c.GetRetryTimes();
         }
         double totalTime = (endTime - startTime) / 1000000000.0;
         double warmupTime = (WarmupCompleted - startTime) / 1000000000.0;
@@ -121,7 +124,8 @@ public class Client {
         System.out.println("-------------Total-------------");
         System.out.printf("Time Cost: %.2f s%n", totalTime);
         System.out.println("Success: " + success);
-        System.out.println("Fail: " + fail);
+        System.out.println("Total retries" + retryTimes);
+        System.out.println("Fail after retry 5 times: " + fail);
         System.out.printf("ThroughPut: %.0f requests per second%n", success / totalTime);
 
         System.out.println("-------------WarmUp-------------");
