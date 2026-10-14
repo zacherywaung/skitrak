@@ -1,5 +1,6 @@
 package client;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.util.concurrent.*;
 
@@ -15,8 +16,13 @@ import org.apache.hc.client5.http.io.ManagedHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.pool.PoolStats;
 
+import javax.websocket.ContainerProvider;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
+
 public class Client {
     static final String baseUrl = "http://localhost:8080/ski-servlet";
+    static final String wsUrl = "ws://localhost:8080/ski-servlet/leaderboard/";
     static final int totalNum = 500000;
     static final int bufferSize = 8192;
     static final int resorts = 10;
@@ -30,7 +36,7 @@ public class Client {
     static final int maxConnection = Math.max(initThreadCount, threadCount);
     static final long monitorInterval = 500;
 
-    public static void main(String[] args) throws InterruptedException, IOException {
+    public static void main(String[] args) throws Exception {
         BlockingQueue<SwipeInfo> bq = new LinkedBlockingQueue<>(bufferSize);      // buffer
         AtomicInteger connectionCreated = new AtomicInteger(0);         // calculate connections created
 
@@ -54,6 +60,14 @@ public class Client {
         ConnectionMonitor monitor = new ConnectionMonitor(connectionPool, monitorInterval);
         Thread monitorThread = new Thread(monitor);
         monitorThread.start();
+
+        // create 10 websocket subscriber
+        WebSocketContainer wsContainer = ContainerProvider.getWebSocketContainer();
+        LeaderboardSubscriber[] subscribers = new LeaderboardSubscriber[resorts];
+        for(int i = 1; i <= resorts; i++) {
+            subscribers[i - 1] = new LeaderboardSubscriber(i, wsUrl + i, wsContainer);
+            subscribers[i - 1].connect();
+        }
 
         // Producer thread create
         Thread producer = new Thread(new SwipeProducer(bq, totalNum, resorts, seasonID, dayID));
@@ -95,6 +109,9 @@ public class Client {
         }
         long endTime = System.nanoTime();
         producer.join();
+        for(int i = 0; i < resorts; i++) {
+            subscribers[i].close();
+        }
         monitorThread.interrupt();
         monitorThread.join();
         // PoolStats poolStats = connectionPool.getTotalStats();
@@ -124,7 +141,7 @@ public class Client {
         System.out.println("-------------Total-------------");
         System.out.printf("Time Cost: %.2f s%n", totalTime);
         System.out.println("Success: " + success);
-        System.out.println("Total retries" + retryTimes);
+        System.out.println("Total retries: " + retryTimes);
         System.out.println("Fail after retry 5 times: " + fail);
         System.out.printf("ThroughPut: %.0f requests per second%n", success / totalTime);
 
@@ -151,5 +168,14 @@ public class Client {
         System.out.println("Peak Connection Pool size: " + monitor.GetPeak());
         System.out.println("Reconnections: " + (connectionCreated.get() - monitor.GetPeak()));
         System.out.println("Reconnections caused by error: " + errReconnection);
+
+        System.out.println("-------------Subscribers-------------");
+        int totalMsg = 0;
+        for(int i = 0; i < resorts; i++) {
+            System.out.printf("Resort%d: get %d messages, connect for %.2f ms%n",
+                    subscribers[i].GetResortID(), subscribers[i].GetMsgCount(), subscribers[i].GetConnectTime());
+            totalMsg += subscribers[i].GetMsgCount();
+        }
+        System.out.println("Total Msg: " + totalMsg);
     }
 }

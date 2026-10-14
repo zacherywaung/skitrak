@@ -20,6 +20,11 @@
             <artifactId>httpclient5</artifactId>
             <version>5.6.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client</artifactId>
+            <version>1.19</version>
+        </dependency>
     </dependencies>
 
 </project>
