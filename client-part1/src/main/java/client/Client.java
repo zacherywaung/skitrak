@@ -2,6 +2,8 @@ package client;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 import java.io.IOException;
@@ -172,10 +174,17 @@ public class Client {
         System.out.println("-------------Subscribers-------------");
         int totalMsg = 0;
         for(int i = 0; i < resorts; i++) {
-            System.out.printf("Resort%d: get %d messages, connect for %.2f ms%n",
-                    subscribers[i].GetResortID(), subscribers[i].GetMsgCount(), subscribers[i].GetConnectTime());
+            System.out.printf("Resort%d: get %d messages, connect for %.2f ms, reconnects %d times%n",
+                    subscribers[i].GetResortID(), subscribers[i].GetMsgCount(),
+                    subscribers[i].GetConnectTime(), subscribers[i].GetReconnectTimes());
             totalMsg += subscribers[i].GetMsgCount();
         }
-        System.out.println("Total Msg: " + totalMsg);
+        System.out.println("Total leaderboard updates delivered: " + totalMsg);
+
+        List<Double> latenciesCombine = new ArrayList<>();
+        for(int i = 0; i < resorts; i++) {
+            latenciesCombine.addAll(subscribers[i].GetLatencies());
+        }
+        System.out.println("Push Latencies Summary: " + Util.summary(latenciesCombine));
     }
 }

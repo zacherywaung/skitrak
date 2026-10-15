@@ -8,16 +8,21 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ClientEndpoint
 public class LeaderboardSubscriber {
     private final String partition = "\"serverTimestamp\":\"";
+    private static final long maxBackOff = 5000;
     private final int resortID;
     private final String uri;
     private final WebSocketContainer container;
-    private Session session;
+    private volatile Session session;
     private double connectTime;
     private final List<Double> latencies = Collections.synchronizedList(new ArrayList<>());
+
+    private final AtomicInteger reconnectTimes = new AtomicInteger(0);
+    private volatile boolean isClose = false;
 
     public LeaderboardSubscriber(int resortID, String uri, WebSocketContainer container) {
         this.resortID = resortID;
@@ -32,7 +37,30 @@ public class LeaderboardSubscriber {
     }
 
     public void close() throws IOException{
+        isClose = true;
         session.close();
+    }
+
+    private void  reconnect() {
+        long backoff = 100;
+        while(!isClose) {
+            try {
+                Thread.sleep(backoff);
+                Session newSession = container.connectToServer(this, URI.create(uri));
+                if(isClose) {
+                    newSession.close();
+                    return;
+                }
+                session = newSession;
+                reconnectTimes.incrementAndGet();
+                System.out.println("Resort" + resortID + ": reconnect!!!");
+                return;
+            } catch (InterruptedException ex) {
+                return;
+            } catch (Exception e) {
+                backoff = Math.min(backoff * 2, maxBackOff);
+            }
+        }
     }
 
     @OnOpen
@@ -65,6 +93,10 @@ public class LeaderboardSubscriber {
     @OnClose
     public void onClose(Session session, CloseReason reason) throws IOException{
         System.out.println("Resort" + resortID + ": closed!!!");
+        if(!isClose) {
+            System.out.println("Resort" + resortID + ": disconnected, try reconnecting!!!");
+            new Thread(() -> reconnect()).start();
+        }
     }
 
     @OnError
@@ -86,5 +118,9 @@ public class LeaderboardSubscriber {
 
     public List<Double> GetLatencies() {
         return new ArrayList<>(latencies);
+    }
+
+    public int GetReconnectTimes() {
+        return reconnectTimes.get();
     }
 }
