@@ -1,5 +1,8 @@
 package client;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,5 +32,28 @@ public class Util {
                 ordered.get(0),
                 ordered.get(ordered.size() - 1)
         );
+    }
+
+    static void writeCsv(List<SwipeToCsv> records, String filepath) throws IOException {
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filepath))) {
+            writer.write("timestamp,requestType,latency,statusCode,resortID");
+            writer.newLine();
+            for(SwipeToCsv e : records) {
+                writer.write(e.GetStartTime() + ",SWIPE," + e.GetLatency() + ","
+                        + e.GetStatusCode() + "," + e.GetResortID());
+                writer.newLine();
+            }
+        }
+    }
+
+    static void wirteThroughputToCsv(int[] interval10, String filepath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filepath))) {
+            writer.write("Time/Sec, Throughput");
+            writer.newLine();
+            for(int i = 0; i < interval10.length; i++) {
+                writer.write((i * 10) + "," + (interval10[i] / 10.0));
+                writer.newLine();
+            }
+        }
     }
 }

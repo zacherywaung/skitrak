@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class SwipeConsumer implements Runnable{
@@ -25,6 +27,8 @@ public class SwipeConsumer implements Runnable{
     private static final int baseBackOff = 100;
     private int retryTimes = 0;
 
+    private final List<SwipeToCsv> records = new ArrayList<>();
+
     public SwipeConsumer(BlockingQueue<SwipeInfo> bq, CloseableHttpClient client, String baseUrl, int total) {
         this.bq = bq;
         this.client = client;
@@ -38,8 +42,12 @@ public class SwipeConsumer implements Runnable{
             try {
                 SwipeInfo swipe = bq.take();
                 HttpPost req = toRequest(swipe);
-                boolean res = SendWithRetry(req);
-                if(res) {
+                long startTime = System.currentTimeMillis();
+                long startInNano = System.nanoTime();
+                int statusCode = SendWithRetry(req);
+                double latency = (System.nanoTime() - startInNano) / 1000000.0;
+                records.add(new SwipeToCsv(startTime, latency, statusCode, swipe.getResortID()));
+                if(statusCode == 201) {
                     success++;
                 } else {
                     fail++;
@@ -50,8 +58,9 @@ public class SwipeConsumer implements Runnable{
             }
         }
     }
-    private boolean SendWithRetry(HttpPost req) throws InterruptedException{
+    private int SendWithRetry(HttpPost req) throws InterruptedException{
         int backoff = baseBackOff;
+        int statusCode = -1;
         for(int attempts = 0; attempts < maxRetry; attempts++) {
             if(attempts > 0) {
                 retryTimes++;
@@ -59,15 +68,18 @@ public class SwipeConsumer implements Runnable{
                 backoff *= 2;
             }
             try {
-                int statusCode = client.execute(req, response -> response.getCode());
+                statusCode = client.execute(req, response -> response.getCode());
                 if(statusCode == 201) {
-                    return true;
+                    return statusCode;
+                }
+                else if(statusCode >= 400 && statusCode < 500) {
+                    return statusCode;
                 }
             } catch (IOException ex) {
                 errReconnect++;
             }
         }
-        return false;
+        return statusCode;
     }
 
     public int GetSuccess() {
@@ -82,6 +94,10 @@ public class SwipeConsumer implements Runnable{
 
     public int GetRetryTimes() {
         return retryTimes;
+    }
+
+    public List<SwipeToCsv> GetRecords() {
+        return records;
     }
 
     // POST {baseurl}/skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID} HTTP/1.1

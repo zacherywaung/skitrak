@@ -123,11 +123,13 @@ public class Client {
         int warmupSuccess = 0, warmupFail = 0;
         int errReconnection = 0;
         int retryTimes = 0;
+        List<SwipeToCsv> allRecords = new ArrayList<>(totalNum);
         for(SwipeConsumer c : consumers) {
             warmupSuccess += c.GetSuccess();
             warmupFail += c.GetFail();
             errReconnection += c.GetErrReconnect();
             retryTimes += c.GetRetryTimes();
+            allRecords.addAll(c.GetRecords());
         }
         int success = warmupSuccess, fail = warmupFail;
         for(SwipeConsumer c : tasks) {
@@ -135,10 +137,14 @@ public class Client {
             fail += c.GetFail();
             errReconnection += c.GetErrReconnect();
             retryTimes += c.GetRetryTimes();
+            allRecords.addAll(c.GetRecords());
         }
         double totalTime = (endTime - startTime) / 1000000000.0;
         double warmupTime = (WarmupCompleted - startTime) / 1000000000.0;
         double threadPoolTime = totalTime - warmupTime;
+        String filepath = "results/allswipes.csv";
+        Util.writeCsv(allRecords, filepath);
+        System.out.println("All swipe records in " + filepath);
 
         System.out.println("-------------Total-------------");
         System.out.printf("Time Cost: %.2f s%n", totalTime);
@@ -163,6 +169,42 @@ public class Client {
         System.out.println("Success: " + (success - warmupSuccess));
         System.out.println("Fail: " + (fail - warmupFail));
         System.out.printf("ThroughPut: %.0f requests per second%n", (success - warmupSuccess) / threadPoolTime);
+
+        List<Double> ingestLatency = new ArrayList<>(allRecords.size());
+        int[] resortCount = new int[resorts];
+        long firstIngest = Long.MAX_VALUE;
+        long lastIngest = Long.MIN_VALUE;
+        for(SwipeToCsv e : allRecords) {
+            if(e.GetStatusCode() == 201) {
+                ingestLatency.add(e.GetLatency());
+                resortCount[e.GetResortID() - 1]++;
+            }
+            firstIngest = Math.min(firstIngest, e.GetStartTime());
+            lastIngest = Math.max(lastIngest, e.GetStartTime());
+        }
+        int intervalCnt = (int)((lastIngest - firstIngest) / 10000) + 1;
+        int[] interval10 = new int[intervalCnt];
+        for(SwipeToCsv e : allRecords) {
+            if(e.GetStatusCode() == 201) {
+                int index = (int) ((e.GetStartTime() - firstIngest));
+                interval10[index]++;
+            }
+        }
+
+        System.out.println("-------------Ingest Latency-------------");
+        System.out.println("Ingest Latency Summary: " + Util.summary(ingestLatency));
+        System.out.println("-------------Throughput for each Resort-------------");
+        for(int i = 0; i < resorts; i++) {
+            System.out.printf("Resort%d: %d swipes total, %.0f swipes per second%n",
+                    i + 1, resortCount[i], resortCount[i] / totalTime);
+        }
+        System.out.println("-------------Throughput over Time(10s)-------------");
+        for(int i = 0; i < intervalCnt; i++) {
+            System.out.printf("%d - %d: %.0f swipes per sec%n", i * 10, i * 10 + 10, interval10[i] / 10.0);
+        }
+        String throughputPath = "results/throughput_over_time.cvs";
+        Util.wirteThroughputToCsv(interval10, throughputPath);
+        System.out.println("All throughput over time in " + throughputPath);
 
         System.out.println("-------------Connection Statistics-------------");
         System.out.println("Warmup Connections created: " + warmupConnections);
