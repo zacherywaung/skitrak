@@ -1,0 +1,43 @@
+before run, local(in nyc):
+
+(base) dlwlrma@dlwlrmadeMacBook-Pro skitrak % sntp time.apple.com
++0.030849 +/- 0.008754 time.apple.com 17.253.2.45
+
+after run, local(in nyc):
+
+(base) dlwlrma@dlwlrmadeMacBook-Pro skitrak % sntp time.apple.com
++0.030638 +/- 0.011899 time.apple.com 17.253.2.45
+
+before run, ec2-west2:
+
+[ec2-user@ip-172-31-47-254 ~]$ chronyc tracking
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Thu Oct 15 05:37:47 2026
+System time     : 0.000007902 seconds slow of NTP time
+Last offset     : -0.000007473 seconds
+RMS offset      : 0.000002550 seconds
+Frequency       : 3.593 ppm slow
+Residual freq   : -0.014 ppm
+Skew            : 0.040 ppm
+Root delay      : 0.000462037 seconds
+Root dispersion : 0.000203730 seconds
+Update interval : 16.3 seconds
+Leap status     : Normal
+
+after run, ec2-west2:
+
+[ec2-user@ip-172-31-47-254 ~]$ chronyc tracking
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Thu Oct 15 05:44:15 2026
+System time     : 0.000000470 seconds slow of NTP time
+Last offset     : +0.000000048 seconds
+RMS offset      : 0.000001154 seconds
+Frequency       : 3.612 ppm slow
+Residual freq   : -0.000 ppm
+Skew            : 0.034 ppm
+Root delay      : 0.000442952 seconds
+Root dispersion : 0.000191568 seconds
+Update interval : 32.5 seconds
+Leap status     : Normal

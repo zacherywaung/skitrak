@@ -23,8 +23,8 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 public class Client {
-    static final String baseUrl = "http://localhost:8080/ski-servlet";
-    static final String wsUrl = "ws://localhost:8080/ski-servlet/leaderboard/";
+    static final String baseUrl = "http://35.86.163.8:8080/ski-servlet";
+    static final String wsUrl = "ws://35.86.163.8:8080/ski-servlet/leaderboard/";
     static final int totalNum = 500000;
     static final int bufferSize = 8192;
     static final int resorts = 10;
@@ -33,7 +33,7 @@ public class Client {
 
     static final int initThreadCount = 32;
     static final int initPerThread = 1000;
-    static final int threadCount = 128;              // thread pool size, to optimize
+    static final int threadCount = 1024;              // thread pool size, to optimize
     static final int batchSize = 100;               // one task size for sending post requests
     static final int maxConnection = Math.max(initThreadCount, threadCount);
     static final long monitorInterval = 500;
@@ -186,7 +186,7 @@ public class Client {
         int[] interval10 = new int[intervalCnt];
         for(SwipeToCsv e : allRecords) {
             if(e.GetStatusCode() == 201) {
-                int index = (int) ((e.GetStartTime() - firstIngest));
+                int index = (int) ((e.GetStartTime() - firstIngest) / 10000);
                 interval10[index]++;
             }
         }
@@ -202,7 +202,7 @@ public class Client {
         for(int i = 0; i < intervalCnt; i++) {
             System.out.printf("%d - %d: %.0f swipes per sec%n", i * 10, i * 10 + 10, interval10[i] / 10.0);
         }
-        String throughputPath = "results/throughput_over_time.cvs";
+        String throughputPath = "results/throughput_over_time.csv";
         Util.wirteThroughputToCsv(interval10, throughputPath);
         System.out.println("All throughput over time in " + throughputPath);
 

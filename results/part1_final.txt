@@ -1,0 +1,62 @@
+Resort1: connected!!!
+Resort2: connected!!!
+Resort3: connected!!!
+Resort4: connected!!!
+Resort5: connected!!!
+Resort6: connected!!!
+Resort7: connected!!!
+Resort8: connected!!!
+Resort9: connected!!!
+Resort10: connected!!!
+Resort1: closed!!!
+Resort2: closed!!!
+Resort3: closed!!!
+Resort4: closed!!!
+Resort5: closed!!!
+Resort6: closed!!!
+Resort7: closed!!!
+Resort8: closed!!!
+Resort9: closed!!!
+Resort10: closed!!!
+-------------Total-------------
+Time Cost: 150.09 s
+Success: 500000
+Total retries: 2
+Fail after retry 5 times: 0
+ThroughPut: 3331 requests per second
+-------------WarmUp-------------
+Threads: 32
+PerThread: 1000
+Time Cost: 90.19 s
+Success: 32000
+Fail: 0
+ThroughPut: 355 requests per second
+-------------ThreadPool-------------
+Threads: 1024
+Task batch size: 100
+Task Sum: 4680
+Time Cost: 59.90 s
+Success: 468000
+Fail: 0
+ThroughPut: 7812 requests per second
+-------------Connection Statistics-------------
+Warmup Connections created: 321
+Total Connections created: 5038
+Peak Connection Pool size: 1024
+Reconnections: 4014
+Reconnections caused by error: 2
+-------------Subscribers-------------
+Resort1: get 303 messages, connect for 495.82 ms, reconnects 0 times
+Resort2: get 303 messages, connect for 159.21 ms, reconnects 0 times
+Resort3: get 303 messages, connect for 230.21 ms, reconnects 0 times
+Resort4: get 302 messages, connect for 174.21 ms, reconnects 0 times
+Resort5: get 302 messages, connect for 159.67 ms, reconnects 0 times
+Resort6: get 302 messages, connect for 187.34 ms, reconnects 0 times
+Resort7: get 301 messages, connect for 158.52 ms, reconnects 0 times
+Resort8: get 301 messages, connect for 163.55 ms, reconnects 0 times
+Resort9: get 301 messages, connect for 206.80 ms, reconnects 0 times
+Resort10: get 300 messages, connect for 159.77 ms, reconnects 0 times
+Total leaderboard updates delivered: 3018
+Push Latencies Summary: mean = 23.40, median = 10.89, P95 = 91.62, P99 = 118.23, min = 7.53, max = 254.42
+
+Process finished with exit code 0

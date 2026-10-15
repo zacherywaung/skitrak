@@ -1,0 +1,120 @@
+Resort1: connected!!!
+Resort2: connected!!!
+Resort3: connected!!!
+Resort4: connected!!!
+Resort5: connected!!!
+Resort6: connected!!!
+Resort7: connected!!!
+Resort8: connected!!!
+Resort9: connected!!!
+Resort10: connected!!!
+Resort1: closed!!!
+Resort2: closed!!!
+Resort3: closed!!!
+Resort4: closed!!!
+Resort5: closed!!!
+Resort6: closed!!!
+Resort7: closed!!!
+Resort8: closed!!!
+Resort9: closed!!!
+Resort10: closed!!!
+All swipe records in results/allswipes.csv
+-------------Total-------------
+Time Cost: 419.71 s
+Success: 500000
+Total retries: 0
+Fail after retry 5 times: 0
+ThroughPut: 1191 requests per second
+-------------WarmUp-------------
+Threads: 32
+PerThread: 1000
+Time Cost: 89.41 s
+Success: 32000
+Fail: 0
+ThroughPut: 358 requests per second
+-------------ThreadPool-------------
+Threads: 128
+Task batch size: 100
+Task Sum: 4680
+Time Cost: 330.31 s
+Success: 468000
+Fail: 0
+ThroughPut: 1417 requests per second
+-------------Ingest Latency-------------
+Ingest Latency Summary: mean = 89.22, median = 80.50, P95 = 130.76, P99 = 168.71, min = 70.43, max = 444.05
+-------------Throughput for each Resort-------------
+Resort1: 50129 swipes total, 119 swipes per second
+Resort2: 49976 swipes total, 119 swipes per second
+Resort3: 49759 swipes total, 119 swipes per second
+Resort4: 50005 swipes total, 119 swipes per second
+Resort5: 50204 swipes total, 120 swipes per second
+Resort6: 49637 swipes total, 118 swipes per second
+Resort7: 50367 swipes total, 120 swipes per second
+Resort8: 50575 swipes total, 120 swipes per second
+Resort9: 49430 swipes total, 118 swipes per second
+Resort10: 49918 swipes total, 119 swipes per second
+-------------Throughput over Time(10s)-------------
+0 - 10: 348 swipes per sec
+10 - 20: 358 swipes per sec
+20 - 30: 362 swipes per sec
+30 - 40: 364 swipes per sec
+40 - 50: 362 swipes per sec
+50 - 60: 365 swipes per sec
+60 - 70: 358 swipes per sec
+70 - 80: 363 swipes per sec
+80 - 90: 401 swipes per sec
+90 - 100: 1447 swipes per sec
+100 - 110: 1394 swipes per sec
+110 - 120: 1390 swipes per sec
+120 - 130: 1427 swipes per sec
+130 - 140: 1452 swipes per sec
+140 - 150: 1441 swipes per sec
+150 - 160: 1439 swipes per sec
+160 - 170: 1445 swipes per sec
+170 - 180: 1417 swipes per sec
+180 - 190: 1418 swipes per sec
+190 - 200: 1452 swipes per sec
+200 - 210: 1437 swipes per sec
+210 - 220: 1432 swipes per sec
+220 - 230: 1444 swipes per sec
+230 - 240: 1451 swipes per sec
+240 - 250: 1424 swipes per sec
+250 - 260: 1441 swipes per sec
+260 - 270: 1435 swipes per sec
+270 - 280: 1450 swipes per sec
+280 - 290: 1442 swipes per sec
+290 - 300: 1436 swipes per sec
+300 - 310: 1419 swipes per sec
+310 - 320: 1434 swipes per sec
+320 - 330: 1439 swipes per sec
+330 - 340: 1428 swipes per sec
+340 - 350: 1435 swipes per sec
+350 - 360: 1453 swipes per sec
+360 - 370: 1421 swipes per sec
+370 - 380: 1449 swipes per sec
+380 - 390: 1448 swipes per sec
+390 - 400: 1449 swipes per sec
+400 - 410: 1422 swipes per sec
+410 - 420: 812 swipes per sec
+All throughput over time in results/throughput_over_time.csv
+-------------Connection Statistics-------------
+Warmup Connections created: 322
+Total Connections created: 5016
+Peak Connection Pool size: 128
+Reconnections: 4888
+Reconnections caused by error: 0
+-------------Subscribers-------------
+Resort1: get 842 messages, connect for 489.45 ms, reconnects 0 times
+Resort2: get 842 messages, connect for 185.64 ms, reconnects 0 times
+Resort3: get 842 messages, connect for 158.88 ms, reconnects 0 times
+Resort4: get 841 messages, connect for 159.31 ms, reconnects 0 times
+Resort5: get 841 messages, connect for 204.89 ms, reconnects 0 times
+Resort6: get 841 messages, connect for 162.46 ms, reconnects 0 times
+Resort7: get 840 messages, connect for 160.53 ms, reconnects 0 times
+Resort8: get 840 messages, connect for 199.75 ms, reconnects 0 times
+Resort9: get 840 messages, connect for 162.58 ms, reconnects 0 times
+Resort10: get 839 messages, connect for 167.69 ms, reconnects 0 times
+Total leaderboard updates delivered: 8408
+Push Latencies Summary: mean = 23.52, median = 10.13, P95 = 83.69, P99 = 106.13, min = 6.17, max = 150.51
+
+Process finished with exit code 0

@@ -1,0 +1,23 @@
+(base) dlwlrma@dlwlrmadeMacBook-Pro skitrak % curl -i http://35.86.163.8:8080/ski-servlet/health
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Content-Length: 15
+Date: Thu, 15 Oct 2026 02:30:13 GMT
+
+{"status":"ok"}%                                                                                                                              (base) dlwlrma@dlwlrmadeMacBook-Pro skitrak % for i in $(seq 1 10); do
+  curl -s -o /dev/null \
+    -w "connect: %{time_connect}s  total: %{time_total}s  status: %{http_code}\n" \
+    -X POST http://35.86.163.8:8080/ski-servlet/skiers/1/seasons/2026/days/1/skiers/123 \
+    -H "Content-Type: application/json" -d '{"time":217,"liftID":21}'
+done
+connect: 0.111281s  total: 0.255767s  status: 201
+connect: 0.087222s  total: 0.234863s  status: 201
+connect: 0.084256s  total: 0.166018s  status: 201
+connect: 0.087545s  total: 0.168389s  status: 201
+connect: 0.166989s  total: 0.248610s  status: 201
+connect: 0.081923s  total: 0.164608s  status: 201
+connect: 0.130650s  total: 0.207186s  status: 201
+connect: 0.083836s  total: 0.164463s  status: 201
+connect: 0.078069s  total: 0.218613s  status: 201
+connect: 0.084833s  total: 0.167022s  status: 201
+(base) dlwlrma@dlwlrmadeMacBook-Pro skitrak %
