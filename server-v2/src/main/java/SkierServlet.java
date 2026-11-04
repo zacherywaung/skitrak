@@ -1,7 +1,10 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.MessageProperties;
 import model.LiftRide;
 import model.ResponseMsg;
+import model.SwipeInfo;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,6 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -17,6 +23,7 @@ import java.util.logging.Level;
 public class SkierServlet extends HttpServlet {
     private Gson gson = new Gson();
     private static final Logger logger = Logger.getLogger(SkierServlet.class.getName());
+    private static final String serverId = System.getenv().getOrDefault("SERVER_ID", "local");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -67,18 +74,8 @@ public class SkierServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        // REST Endpoint: POST /skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}
-//        {
-//            "time": 217,
-//            "liftID": 21
-//        }
-//        Validation (return 400 on failure):
-//        resortID, seasonID, dayID, skierID in the URL path must be positive integers
-//        time must be between 1 and 360 (minutes into the ski day)
-//        liftID must be between 1 and 40
-//        On a valid swipe: return 201 Created. That's it — no aggregation, no per-skier state, no leaderboard update. The server simply accepts the swipe as fast as it can. (Real aggregation arrives in Assignment 2.)
 
-        logger.info("POST request received: " + req.getPathInfo());
+//        logger.info("POST request received: " + req.getPathInfo());
 
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");
@@ -87,7 +84,7 @@ public class SkierServlet extends HttpServlet {
 
         // Check we have a URL
         if (urlPath == null || urlPath.isEmpty()) {
-            logger.warning("POST missing parameters");
+//            logger.warning("POST missing parameters");
             res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             res.getWriter().write(gson.toJson(new ResponseMsg("missing parameters")));
             return;
@@ -96,7 +93,7 @@ public class SkierServlet extends HttpServlet {
         String[] urlParts = urlPath.split("/");
 
         if (!isUrlValid(urlParts)) {
-            logger.warning("Invalid url: " + req.getPathInfo());
+//            logger.warning("Invalid url: " + req.getPathInfo());
             res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             res.getWriter().write(gson.toJson(new ResponseMsg("invalid url")));
             return;
@@ -114,32 +111,69 @@ public class SkierServlet extends HttpServlet {
             LiftRide liftRide = gson.fromJson(jsonBody.toString(), LiftRide.class);
 
             if (liftRide == null || !isLiftRideValid(liftRide)) {
-                logger.warning("Invalid lift ride: " + jsonBody.toString());
+//                logger.warning("Invalid lift ride: " + jsonBody.toString());
                 res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 res.getWriter().write(gson.toJson(new ResponseMsg("invalid JSON body")));
                 return;
             }
 
-            // Extract URL parameters
-            String resortID = urlParts[1];
-            String seasonID = urlParts[3];
-            String dayID = urlParts[5];
-            String skierID = urlParts[7];
+            /*
+            this.liftID = liftID;
+            this.vertical = vertical;
+            this.time = time;
+            this.timestamp = timestamp;
+            this.serverId = serverId;
+            */
+            SwipeInfo swipe = new SwipeInfo(
+                    UUID.randomUUID().toString(),   // UUID
+                    urlParts[1],                    // resortID
+                    urlParts[5],                    // dayID
+                    urlParts[7],                    // skierID
+                    String.valueOf(liftRide.getLiftID()),   // liftID
+                    LiftVertical.GetVerticalByID(liftRide.getLiftID()), // vertical
+                    liftRide.getTime(),             // time
+                    Instant.now().toString(),       // timestamp
+                    serverId
+                    );
 
-            // Process the lift ride (in real app, save to database)
-            logger.info("Lift ride recorded success");
-            res.setStatus(HttpServletResponse.SC_CREATED);
-//            ResponseMsg response = new ResponseMsg(
-//                    String.format("Lift ride recorded: skier %s, resort %s, season %s, day %s, time %d, lift %d",
-//                            skierID, resortID, seasonID, dayID, liftRide.getTime(), liftRide.getLiftID())
-//            );
+            // publish to RabbitMQ
+//          // succeed 201, fail 503
+            if(publish(swipe)) {
+                res.setStatus(HttpServletResponse.SC_CREATED);
+            } else {
+                res.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                res.getWriter().write(gson.toJson(new ResponseMsg("queue fail")));
+            }
+
 //
-//            res.getWriter().write(gson.toJson(response));
-
         } catch (JsonSyntaxException e) {
             logger.warning("JSON syntax error: " + e.getMessage());
             res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             res.getWriter().write(gson.toJson(new ResponseMsg("invalid JSON format")));
+        }
+    }
+
+    public boolean publish(SwipeInfo swipe) {
+        ChannelPool pool = RabbitMQManager.GetChannelPool();
+        byte[] body = gson.toJson(swipe).getBytes(StandardCharsets.UTF_8);
+        Channel tmpCh = null;
+        try{
+            // borrow channel
+            tmpCh = pool.borrowChannel(2000);
+            // send
+            tmpCh.basicPublish(RabbitMQManager.ingestExchange,
+                    "resort." + swipe.GetResortID(),
+                    MessageProperties.PERSISTENT_TEXT_PLAIN, body);
+            // wait confirmatioon
+            tmpCh.waitForConfirmsOrDie(5000);
+            return true;
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Publish error: " + e.getMessage());
+            return false;
+        } finally {
+            if(tmpCh != null) {
+                pool.returnChannel(tmpCh);
+            }
         }
     }
 
@@ -160,7 +194,7 @@ public class SkierServlet extends HttpServlet {
             }
 
             // Validate numeric parameters && resortID seasonID dayID skierID > 0
-            return Integer.parseInt(urlParts[1]) > 0            // resortID
+            return Integer.parseInt(urlParts[1]) > 0 && Integer.parseInt(urlParts[1]) <= RabbitMQManager.resorts   // resortID
             && Integer.parseInt(urlParts[3]) > 0                // seasonID
             && Integer.parseInt(urlParts[5]) > 0                // dayID
             && Integer.parseInt(urlParts[7]) > 0;               // skierID
