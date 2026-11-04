@@ -1,5 +1,7 @@
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
@@ -11,6 +13,7 @@ public class ChannelPool {
     private final Connection conn;
     private final int sz;
     private final BlockingQueue<Channel> bq;
+    private static final Logger logger = Logger.getLogger(ChannelPool.class.getName());
 
     ChannelPool(Connection conn, int sz) {
         this.conn = conn;
@@ -20,9 +23,7 @@ public class ChannelPool {
 
     public void init() throws IOException {
         for(int i = 0; i < sz; i++) {
-            Channel ch = conn.createChannel();
-            ch.confirmSelect();
-            bq.offer(ch);
+            bq.offer(newChannel());
         }
     }
     public Channel borrowChannel(long timeout) throws InterruptedException, TimeoutException{
@@ -33,6 +34,29 @@ public class ChannelPool {
         return channel;
     }
     public void returnChannel(Channel channel) {
-        bq.offer(channel);
+        // channel closed, connection ok: replace it
+        // connection down, keep old one, recovery will reopen it
+        if(!channel.isOpen() && conn.isOpen()) {
+            try {
+                channel = newChannel();
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "replace channel error", e);
+                return;
+            }
+        }
+        if (!bq.offer(channel)) {
+            logger.warning("ChannelPool is full, closing extra channel");
+            try {
+                channel.close();
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "close extra channel fail", e);
+            }
+        }
+    }
+
+    private Channel newChannel() throws IOException {
+        Channel ch = conn.createChannel();
+        ch.confirmSelect();
+        return ch;
     }
 }

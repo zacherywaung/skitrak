@@ -1,7 +1,4 @@
-import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -33,8 +30,25 @@ public class RabbitMQManager implements ServletContextListener {
         factory.setPort(5672);
         factory.setUsername("guest");
         factory.setPassword("guest");
+        factory.setAutomaticRecoveryEnabled(true);
+        factory.setNetworkRecoveryInterval(5000);
         try {
             conn = factory.newConnection("swipe-ingest");
+            // connection shutdown printing
+            conn.addShutdownListener(cause ->
+                    logger.warning("RabbitMQ connection closed: " + cause.getMessage()));
+            // connection recover
+            ((Recoverable) conn).addRecoveryListener(new RecoveryListener() {
+                @Override
+                public void handleRecoveryStarted(Recoverable r) {
+                    logger.warning("RabbitMQ reconnecting...");
+                }
+
+                @Override
+                public void handleRecovery(Recoverable r) {
+                    logger.info("RabbitMQ reconnected");
+                }
+            });
             try (Channel channel = conn.createChannel()) {
                 declareTopology(channel);
             }
