@@ -54,4 +54,7 @@ public class SwipeInfo {
     public int GetVertical() {
         return vertical;
     }
+    public String GetTimestamp() {
+        return timestamp;
+    }
 }

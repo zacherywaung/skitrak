@@ -23,6 +23,8 @@ public class LeaderboardSubscriber {
 
     private final AtomicInteger reconnectTimes = new AtomicInteger(0);
     private volatile boolean isClose = false;
+    private volatile String lastMessage = null;
+    private volatile long lastMessageTime = 0;
 
     public LeaderboardSubscriber(int resortID, String uri, WebSocketContainer container) {
         this.resortID = resortID;
@@ -79,6 +81,8 @@ public class LeaderboardSubscriber {
     @OnMessage
     public void onMessage(String message) {
         Instant recvTime = Instant.now();
+        lastMessage = message;
+        lastMessageTime = System.currentTimeMillis();
         int begin = message.indexOf(partition);
         if(begin < 0) {
             return;
@@ -123,4 +127,8 @@ public class LeaderboardSubscriber {
     public int GetReconnectTimes() {
         return reconnectTimes.get();
     }
+
+    public String GetLastMessage() { return lastMessage; }
+
+    public long GetLastMessageTime() { return lastMessageTime; }
 }

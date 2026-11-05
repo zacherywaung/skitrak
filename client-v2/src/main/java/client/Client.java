@@ -23,9 +23,10 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 public class Client {
-    static final String baseUrl = "http://35.86.163.8:8080/ski-servlet";
-    static final String wsUrl = "ws://35.86.163.8:8080/ski-servlet/leaderboard/";
-    static final int totalNum = 500000;
+    static final String host = System.getenv().getOrDefault("SKITRAK_HOST", "localhost:8080");
+    static final String baseUrl = "http://" + host + "/ski-servlet";
+    static final String wsUrl = "ws://" + host + "/ski-servlet/leaderboard/";
+    static final int totalNum = Integer.parseInt(System.getenv().getOrDefault("TOTAL_SWIPES", "500000"));
     static final int bufferSize = 8192;
     static final int resorts = 10;
     static final int seasonID = 2026;
@@ -33,7 +34,7 @@ public class Client {
 
     static final int initThreadCount = 32;
     static final int initPerThread = 1000;
-    static final int threadCount = 1024;              // thread pool size, to optimize
+    static final int threadCount = Integer.parseInt(System.getenv().getOrDefault("THREADS", "1024"));  // thread pool size, to optimize             // thread pool size, to optimize
     static final int batchSize = 100;               // one task size for sending post requests
     static final int maxConnection = Math.max(initThreadCount, threadCount);
     static final long monitorInterval = 500;
@@ -56,6 +57,8 @@ public class Client {
         CloseableHttpClient client = HttpClients.custom()
                 .setConnectionManager(connectionPool)
                 .disableAutomaticRetries()
+                .disableAutomaticRetries()
+                .disableCookieManagement()
                 .build();
 
         // start connection monitoring
@@ -111,6 +114,18 @@ public class Client {
         }
         long endTime = System.nanoTime();
         producer.join();
+        long quietMs = 3000;
+        long waitDeadline = System.currentTimeMillis() + 60000;
+        while (System.currentTimeMillis() < waitDeadline) {
+            long lastAny = 0;
+            for (LeaderboardSubscriber sub : subscribers) {
+                lastAny = Math.max(lastAny, sub.GetLastMessageTime());
+            }
+            if (System.currentTimeMillis() - lastAny > quietMs) {
+                break;
+            }
+            Thread.sleep(500);
+        }
         for(int i = 0; i < resorts; i++) {
             subscribers[i].close();
         }
@@ -142,7 +157,7 @@ public class Client {
         double totalTime = (endTime - startTime) / 1000000000.0;
         double warmupTime = (WarmupCompleted - startTime) / 1000000000.0;
         double threadPoolTime = totalTime - warmupTime;
-        String filepath = "results/allswipes.csv";
+        String filepath = "results-v2/allswipes.csv";
         Util.writeCsv(allRecords, filepath);
         System.out.println("All swipe records in " + filepath);
 
@@ -202,11 +217,30 @@ public class Client {
         for(int i = 0; i < intervalCnt; i++) {
             System.out.printf("%d - %d: %.0f swipes per sec%n", i * 10, i * 10 + 10, interval10[i] / 10.0);
         }
-        String throughputPath = "results/throughput_over_time.csv";
+        String throughputPath = "results-v2/throughput_over_time.csv";
         Util.wirteThroughputToCsv(interval10, throughputPath);
         System.out.println("All throughput over time in " + throughputPath);
 
-        System.out.println("-------------Connection Statistics-------------");
+        System.out.println("-------------ConChanges not staged for commit:\n" +
+                "  (use \"git add <file>...\" to update what will be committed)\n" +
+                "  (use \"git restore <file>...\" to discard changes in working directory)\n" +
+                "        modified:   src/main/java/client/Client.java\n" +
+                "        modified:   src/main/java/client/LeaderboardSubscriber.java\n" +
+                "        modified:   src/main/java/client/SwipeConsumer.java\n" +
+                "        modified:   src/main/java/client/SwipeToCsv.java\n" +
+                "        modified:   src/main/java/client/Util.java\n" +
+                "        modified:   ../consumer/src/main/java/consumer/ConsumerApp.java\n" +
+                "        modified:   ../server-v2/src/main/java/LeaderboardEndpoint.java\n" +
+                "        modified:   ../server-v2/src/main/java/RabbitMQManager.java\n" +
+                "\n" +
+                "Untracked files:\n" +
+                "  (use \"git add <file>...\" to include in what will be committed)\n" +
+                "        ../consumer/src/main/java/consumer/Broadcaster.java\n" +
+                "        ../results-v2/\n" +
+                "        ../server-v2/src/main/java/SessionSender.java\n" +
+                "\n" +
+                "no changes added to commit (use \"git add\" and/or \"git commit -a\")\n" +
+                "(base) dlwlrma@dlwlrmadeMacBook-Pro client-v2 % nection Statistics-------------");
         System.out.println("Warmup Connections created: " + warmupConnections);
         System.out.println("Total Connections created: " + connectionCreated.get());
         System.out.println("Peak Connection Pool size: " + monitor.GetPeak());
@@ -228,5 +262,13 @@ public class Client {
             latenciesCombine.addAll(subscribers[i].GetLatencies());
         }
         System.out.println("Push Latencies Summary: " + Util.summary(latenciesCombine));
+
+        String boardPath = "results-v2/final_leaderboards.txt";
+        try (java.io.PrintWriter w = new java.io.PrintWriter(boardPath)) {
+            for (int i = 0; i < resorts; i++) {
+                w.println(subscribers[i].GetLastMessage());
+            }
+        }
+        System.out.println("Final leaderboards in " + boardPath);
     }
 }

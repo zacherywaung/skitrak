@@ -46,7 +46,7 @@ public class SwipeConsumer implements Runnable{
                 long startInNano = System.nanoTime();
                 int statusCode = SendWithRetry(req);
                 double latency = (System.nanoTime() - startInNano) / 1000000.0;
-                records.add(new SwipeToCsv(startTime, latency, statusCode, swipe.getResortID()));
+                records.add(new SwipeToCsv(startTime, latency, statusCode, swipe.getResortID(), swipe.getSkierID(), swipe.getLiftID()));
                 if(statusCode == 201) {
                     success++;
                 } else {

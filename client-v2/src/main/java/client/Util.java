@@ -36,11 +36,12 @@ public class Util {
 
     static void writeCsv(List<SwipeToCsv> records, String filepath) throws IOException {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(filepath))) {
-            writer.write("timestamp,requestType,latency,statusCode,resortID");
+            writer.write("timestamp,requestType,latency,statusCode,resortID,skierID,liftID");
             writer.newLine();
             for(SwipeToCsv e : records) {
                 writer.write(e.GetStartTime() + ",SWIPE," + e.GetLatency() + ","
-                        + e.GetStatusCode() + "," + e.GetResortID());
+                        + e.GetStatusCode() + "," + e.GetResortID() + ","
+                        + e.GetSkierID() + "," + e.GetLiftID());
                 writer.newLine();
             }
         }
