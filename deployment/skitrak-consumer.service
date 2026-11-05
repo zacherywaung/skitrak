@@ -1,0 +1,14 @@
+[Unit]
+Description=SkiTrak consumer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ec2-user
+EnvironmentFile=/etc/skitrak-consumer.env
+ExecStart=/usr/bin/java -Xmx600m -jar /opt/consumer/consumer.jar
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
