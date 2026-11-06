@@ -1,0 +1,15 @@
+[Unit]
+Description=Tomcat 9 for SkiTrak server-v2
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+Environment=CATALINA_PID=/opt/tomcat9/temp/tomcat.pid
+PIDFile=/opt/tomcat9/temp/tomcat.pid
+ExecStart=/opt/tomcat9/bin/startup.sh
+ExecStop=/opt/tomcat9/bin/shutdown.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
