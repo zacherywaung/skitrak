@@ -221,26 +221,6 @@ public class Client {
         Util.wirteThroughputToCsv(interval10, throughputPath);
         System.out.println("All throughput over time in " + throughputPath);
 
-        System.out.println("-------------ConChanges not staged for commit:\n" +
-                "  (use \"git add <file>...\" to update what will be committed)\n" +
-                "  (use \"git restore <file>...\" to discard changes in working directory)\n" +
-                "        modified:   src/main/java/client/Client.java\n" +
-                "        modified:   src/main/java/client/LeaderboardSubscriber.java\n" +
-                "        modified:   src/main/java/client/SwipeConsumer.java\n" +
-                "        modified:   src/main/java/client/SwipeToCsv.java\n" +
-                "        modified:   src/main/java/client/Util.java\n" +
-                "        modified:   ../consumer/src/main/java/consumer/ConsumerApp.java\n" +
-                "        modified:   ../server-v2/src/main/java/LeaderboardEndpoint.java\n" +
-                "        modified:   ../server-v2/src/main/java/RabbitMQManager.java\n" +
-                "\n" +
-                "Untracked files:\n" +
-                "  (use \"git add <file>...\" to include in what will be committed)\n" +
-                "        ../consumer/src/main/java/consumer/Broadcaster.java\n" +
-                "        ../results-v2/\n" +
-                "        ../server-v2/src/main/java/SessionSender.java\n" +
-                "\n" +
-                "no changes added to commit (use \"git add\" and/or \"git commit -a\")\n" +
-                "(base) dlwlrma@dlwlrmadeMacBook-Pro client-v2 % nection Statistics-------------");
         System.out.println("Warmup Connections created: " + warmupConnections);
         System.out.println("Total Connections created: " + connectionCreated.get());
         System.out.println("Peak Connection Pool size: " + monitor.GetPeak());
