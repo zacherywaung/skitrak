@@ -1,0 +1,85 @@
+Resort1: connected!!!
+Resort2: connected!!!
+Resort3: connected!!!
+Resort4: connected!!!
+Resort5: connected!!!
+Resort6: connected!!!
+Resort7: connected!!!
+Resort8: connected!!!
+Resort9: connected!!!
+Resort10: connected!!!
+Resort1: closed!!!
+Resort2: closed!!!
+Resort3: closed!!!
+Resort4: closed!!!
+Resort5: closed!!!
+Resort6: closed!!!
+Resort7: closed!!!
+Resort8: closed!!!
+Resort9: closed!!!
+Resort10: closed!!!
+All swipe records in results-v2/allswipes.csv
+-------------Total-------------
+Time Cost: 83.01 s
+Success: 500000
+Total retries: 0
+Fail after retry 5 times: 0
+ThroughPut: 6024 requests per second
+-------------WarmUp-------------
+Threads: 32
+PerThread: 1000
+Time Cost: 9.82 s
+Success: 32000
+Fail: 0
+ThroughPut: 3258 requests per second
+-------------ThreadPool-------------
+Threads: 512
+Task batch size: 100
+Task Sum: 4680
+Time Cost: 73.19 s
+Success: 468000
+Fail: 0
+ThroughPut: 6395 requests per second
+-------------Ingest Latency-------------
+Ingest Latency Summary: mean = 73.87, median = 37.22, P95 = 250.67, P99 = 376.77, min = 4.56, max = 1801.34
+-------------Throughput for each Resort-------------
+Resort1: 50018 swipes total, 603 swipes per second
+Resort2: 49983 swipes total, 602 swipes per second
+Resort3: 50333 swipes total, 606 swipes per second
+Resort4: 49686 swipes total, 599 swipes per second
+Resort5: 50407 swipes total, 607 swipes per second
+Resort6: 50185 swipes total, 605 swipes per second
+Resort7: 49730 swipes total, 599 swipes per second
+Resort8: 50130 swipes total, 604 swipes per second
+Resort9: 49868 swipes total, 601 swipes per second
+Resort10: 49660 swipes total, 598 swipes per second
+-------------Throughput over Time(10s)-------------
+0 - 10: 3348 swipes per sec
+10 - 20: 6400 swipes per sec
+20 - 30: 6479 swipes per sec
+30 - 40: 6522 swipes per sec
+40 - 50: 6219 swipes per sec
+50 - 60: 6247 swipes per sec
+60 - 70: 6506 swipes per sec
+70 - 80: 6473 swipes per sec
+80 - 90: 1806 swipes per sec
+All throughput over time in results-v2/throughput_over_time.csv
+Warmup Connections created: 32
+Total Connections created: 512
+Peak Connection Pool size: 512
+Reconnections: 0
+Reconnections caused by error: 0
+-------------Subscribers-------------
+Resort1: get 164 messages, connect for 303.10 ms, reconnects 0 times
+Resort2: get 154 messages, connect for 57.16 ms, reconnects 0 times
+Resort3: get 149 messages, connect for 14.58 ms, reconnects 0 times
+Resort4: get 167 messages, connect for 12.72 ms, reconnects 0 times
+Resort5: get 153 messages, connect for 12.69 ms, reconnects 0 times
+Resort6: get 134 messages, connect for 13.85 ms, reconnects 0 times
+Resort7: get 159 messages, connect for 50.69 ms, reconnects 0 times
+Resort8: get 150 messages, connect for 12.28 ms, reconnects 0 times
+Resort9: get 147 messages, connect for 13.83 ms, reconnects 0 times
+Resort10: get 148 messages, connect for 14.88 ms, reconnects 0 times
+Total leaderboard updates delivered: 1525
+Push Latencies Summary: mean = 12.15, median = 11.90, P95 = 19.52, P99 = 37.26, min = 2.27, max = 128.16
+Final leaderboards in results-v2/final_leaderboards.txt

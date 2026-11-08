@@ -1,0 +1,130 @@
+/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=61289 -Dfile.encoding=UTF-8 -classpath /Users/dlwlrma/Desktop/neu/6650/skitrak/client-v2/target/classes:/Users/dlwlrma/.m2/repository/org/apache/httpcomponents/client5/httpclient5/5.6.2/httpclient5-5.6.2.jar:/Users/dlwlrma/.m2/repository/org/apache/httpcomponents/core5/httpcore5/5.4.3/httpcore5-5.4.3.jar:/Users/dlwlrma/.m2/repository/org/apache/httpcomponents/core5/httpcore5-h2/5.4.3/httpcore5-h2-5.4.3.jar:/Users/dlwlrma/.m2/repository/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar:/Users/dlwlrma/.m2/repository/org/glassfish/tyrus/bundles/tyrus-standalone-client/1.19/tyrus-standalone-client-1.19.jar client.Client
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Resort1: connected!!!
+Resort2: connected!!!
+Resort3: connected!!!
+Resort4: connected!!!
+Resort5: connected!!!
+Resort6: connected!!!
+Resort7: connected!!!
+Resort8: connected!!!
+Resort9: connected!!!
+Resort10: connected!!!
+Resort1: closed!!!
+Resort2: closed!!!
+Resort3: closed!!!
+Resort4: closed!!!
+Resort5: closed!!!
+Resort6: closed!!!
+Resort7: closed!!!
+Resort8: closed!!!
+Resort9: closed!!!
+Resort10: closed!!!
+All swipe records in results-v2/allswipes.csv
+-------------Total-------------
+Time Cost: 277.07 s
+Success: 499963
+Total retries: 453
+Fail after retry 5 times: 37
+ThroughPut: 1804 requests per second
+-------------WarmUp-------------
+Threads: 32
+PerThread: 1000
+Time Cost: 23.04 s
+Success: 32000
+Fail: 0
+ThroughPut: 1389 requests per second
+-------------ThreadPool-------------
+Threads: 512
+Task batch size: 100
+Task Sum: 4680
+Time Cost: 254.03 s
+Success: 467963
+Fail: 37
+ThroughPut: 1842 requests per second
+-------------Ingest Latency-------------
+Ingest Latency Summary: mean = 258.63, median = 95.89, P95 = 275.92, P99 = 413.63, min = 14.76, max = 150537.36
+-------------Throughput for each Resort-------------
+Resort1: 49965 swipes total, 180 swipes per second
+Resort2: 50045 swipes total, 181 swipes per second
+Resort3: 50270 swipes total, 181 swipes per second
+Resort4: 49871 swipes total, 180 swipes per second
+Resort5: 49894 swipes total, 180 swipes per second
+Resort6: 50567 swipes total, 183 swipes per second
+Resort7: 50029 swipes total, 181 swipes per second
+Resort8: 49797 swipes total, 180 swipes per second
+Resort9: 49699 swipes total, 179 swipes per second
+Resort10: 49826 swipes total, 180 swipes per second
+-------------Throughput over Time(10s)-------------
+0 - 10: 1352 swipes per sec
+10 - 20: 1427 swipes per sec
+20 - 30: 533 swipes per sec
+30 - 40: 34 swipes per sec
+40 - 50: 23 swipes per sec
+50 - 60: 23 swipes per sec
+60 - 70: 2 swipes per sec
+70 - 80: 0 swipes per sec
+80 - 90: 4 swipes per sec
+90 - 100: 0 swipes per sec
+100 - 110: 1 swipes per sec
+110 - 120: 0 swipes per sec
+120 - 130: 0 swipes per sec
+130 - 140: 0 swipes per sec
+140 - 150: 313 swipes per sec
+150 - 160: 3900 swipes per sec
+160 - 170: 3638 swipes per sec
+170 - 180: 3659 swipes per sec
+180 - 190: 3664 swipes per sec
+190 - 200: 3569 swipes per sec
+200 - 210: 3665 swipes per sec
+210 - 220: 3652 swipes per sec
+220 - 230: 3660 swipes per sec
+230 - 240: 3659 swipes per sec
+240 - 250: 3659 swipes per sec
+250 - 260: 3555 swipes per sec
+260 - 270: 3611 swipes per sec
+270 - 280: 2393 swipes per sec
+All throughput over time in results-v2/throughput_over_time.csv
+-------------ConChanges not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   src/main/java/client/Client.java
+        modified:   src/main/java/client/LeaderboardSubscriber.java
+        modified:   src/main/java/client/SwipeConsumer.java
+        modified:   src/main/java/client/SwipeToCsv.java
+        modified:   src/main/java/client/Util.java
+        modified:   ../consumer/src/main/java/consumer/ConsumerApp.java
+        modified:   ../server-v2/src/main/java/LeaderboardEndpoint.java
+        modified:   ../server-v2/src/main/java/RabbitMQManager.java
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        ../consumer/src/main/java/consumer/Broadcaster.java
+        ../results-v2/
+        ../server-v2/src/main/java/SessionSender.java
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(base) dlwlrma@dlwlrmadeMacBook-Pro client-v2 % nection Statistics-------------
+Warmup Connections created: 32
+Total Connections created: 1002
+Peak Connection Pool size: 512
+Reconnections: 490
+Reconnections caused by error: 490
+-------------Subscribers-------------
+Resort1: get 192 messages, connect for 1066.96 ms, reconnects 0 times
+Resort2: get 199 messages, connect for 40.10 ms, reconnects 0 times
+Resort3: get 192 messages, connect for 41.73 ms, reconnects 0 times
+Resort4: get 181 messages, connect for 44.01 ms, reconnects 0 times
+Resort5: get 201 messages, connect for 61.65 ms, reconnects 0 times
+Resort6: get 165 messages, connect for 108.54 ms, reconnects 0 times
+Resort7: get 209 messages, connect for 43.80 ms, reconnects 0 times
+Resort8: get 176 messages, connect for 43.75 ms, reconnects 0 times
+Resort9: get 183 messages, connect for 55.24 ms, reconnects 0 times
+Resort10: get 197 messages, connect for 45.01 ms, reconnects 0 times
+Total leaderboard updates delivered: 1895
+Push Latencies Summary: mean = 8436.06, median = -119.01, P95 = 79859.46, P99 = 99855.57, min = -127.39, max = 107202.41
+Final leaderboards in results-v2/final_leaderboards.txt
+
+Process finished with exit code 0
